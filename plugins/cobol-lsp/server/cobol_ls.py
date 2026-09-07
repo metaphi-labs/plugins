@@ -4,7 +4,9 @@
 Speaks the Language Server Protocol over stdio. Indexes every .cbl/.cob/.cpy under the workspace.
 
 Diagnostics (published on open and on every change):
-  column-72        text past column 72 on a fixed-format line: the compiler drops it without a word
+  column-72        code past column 72 on a fixed-format line: the compiler drops it without a word.
+                   Columns 73-80 belong to the shop: a sequence number or a change marker (up to eight
+                   letters and digits) is what they were made for and is never reported, nor is a comment
   area-a           a statement that starts in area A, or a header that does not
   undefined-data   a name used in the PROCEDURE DIVISION that no data item, paragraph or copybook declares
   undefined-para   PERFORM / GO TO a paragraph or section the program does not have
@@ -32,12 +34,18 @@ COPY_EXTS = (".cpy", ".CPY", ".cbl", ".CBL", ".cob", ".COB", ".copy", ".COPY", "
 MAX_FILES = 5000
 WORD = re.compile(r"[A-Za-z0-9][A-Za-z0-9\-_]*")
 STRING = re.compile(r"'[^']*'|\"[^\"]*\"")
-LEVEL = re.compile(r"^\s*(\d{1,2})\s+([A-Za-z0-9][A-Za-z0-9\-_]*|FILLER)\b", re.I)
+# a templated copybook names its items ``:XXX:-FIELD``, resolved by COPY ... REPLACING
+LEVEL = re.compile(r"^\s*(\d{1,2})\s+([A-Za-z0-9:][A-Za-z0-9\-_:]*|FILLER)\b", re.I)
+FILE_ENTRY = re.compile(r"^\s*(?:FD|SD)\s+([A-Za-z0-9][A-Za-z0-9\-_]*)", re.I)
+SELECT_CLAUSE = re.compile(r"^\s*SELECT\s+(?:OPTIONAL\s+)?([A-Za-z0-9][A-Za-z0-9\-_]*)", re.I)
+# what the identification area was made for: a sequence number or a short change marker
+MARKER = re.compile(r"^\s*[A-Za-z0-9]{1,8}\s*$")
 DIVISION = re.compile(r"^\s*(IDENTIFICATION|ID|ENVIRONMENT|DATA|PROCEDURE)\s+DIVISION\b", re.I)
 SECTION = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9\-_]*)\s+SECTION\s*\.", re.I)
 PARAGRAPH = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9\-_]*)\s*\.\s*$")
 PROGRAM_ID = re.compile(r"\bPROGRAM-ID\s*\.?\s*([A-Za-z0-9][A-Za-z0-9\-_]*)", re.I)
 COPY = re.compile(r"\bCOPY\s+(['\"]?)([A-Za-z0-9][A-Za-z0-9\-_]*)\1", re.I)
+REPLACING_PAIR = re.compile(r"==(.*?)==\s+BY\s+==(.*?)==", re.I | re.S)
 CALL = re.compile(r"\bCALL\s+(['\"])([A-Za-z0-9][A-Za-z0-9\-_]*)\1", re.I)
 PERFORM = re.compile(r"\b(?:PERFORM|GO\s+TO)\s+([A-Za-z0-9][A-Za-z0-9\-_]*)", re.I)
 THRU = re.compile(r"\b(?:THRU|THROUGH)\s+([A-Za-z0-9][A-Za-z0-9\-_]*)", re.I)
@@ -137,7 +145,7 @@ class Line:
         self.start = 7
         body = self.raw[7:72]
         past = self.raw[72:]
-        if past.strip() and not past.strip().isdigit():
+        if past.strip() and not MARKER.match(past) and not self.comment:
             self.overflow = past
         self.text = "" if self.comment else body
 
@@ -160,7 +168,7 @@ class Program:
         self.sections: dict[str, int] = {}
         self.paragraphs: dict[str, int] = {}
         self.data: dict[str, list[tuple[int, int]]] = {}   # NAME → [(line, level)]
-        self.copies: list[tuple[str, int]] = []
+        self.copies: list[tuple[str, int, list[tuple[str, str]]]] = []   # (BOOK, line, REPLACING pairs)
         self.calls: list[tuple[str, int]] = []
         self.performs: list[tuple[str, int]] = []
         self.words: list[tuple[str, int, int]] = []   # every code word: (NAME, line, col)
@@ -190,7 +198,7 @@ class Program:
             if pm and not self.program_id:
                 self.program_id = pm.group(1).upper()
             for cm in COPY.finditer(code):
-                self.copies.append((cm.group(2).upper(), i))
+                self.copies.append((cm.group(2).upper(), i, self._replacing(i, cm.end())))
             for cm in CALL.finditer(ln.text):
                 self.calls.append((cm.group(2).upper(), i))
             if current_division == "PROCEDURE":
@@ -209,9 +217,28 @@ class Program:
                 lm = LEVEL.match(code)
                 if lm and lm.group(2).upper() != "FILLER":
                     self.data.setdefault(lm.group(2).upper(), []).append((i, int(lm.group(1))))
+                fm = FILE_ENTRY.match(code)
+                if fm:
+                    self.data.setdefault(fm.group(1).upper(), []).append((i, 0))
+            elif current_division == "ENVIRONMENT":
+                sm_ = SELECT_CLAUSE.match(code)
+                if sm_:
+                    self.data.setdefault(sm_.group(1).upper(), []).append((i, 0))
             for wm in WORD.finditer(code):
                 self.words.append((wm.group(0).upper(), i, ln.start + wm.start()))
         self._diagnose()
+
+    def _replacing(self, line: int, col: int) -> list[tuple[str, str]]:
+        """The ``REPLACING ==a== BY ==b==`` pairs of the COPY statement that starts at ``col`` on
+        ``line``, read to its period across the cards it spans; empty for a plain COPY."""
+        text, j = self.lines[line].text[col:], line + 1
+        while not re.search(r"\.\s*$", text) and j < len(self.lines) and j < line + 12:
+            if not self.lines[j].comment:
+                text += " " + self.lines[j].text
+            j += 1
+        if not re.match(r"\s*REPLACING\b", text, re.I):
+            return []
+        return [(a.strip().upper(), b.strip().upper()) for a, b in REPLACING_PAIR.findall(text)]
 
     def _diagnose(self) -> None:
         out: list[dict] = []
@@ -248,7 +275,7 @@ class Program:
                          "a DIVISION or SECTION header belongs in area A (columns 8-11)")
         # what the program declares, copybooks included
         declared, unresolved = self.index.declared(self)
-        for name, i in self.copies:
+        for name, i, _pairs in self.copies:
             if self.index.copybook(name) is None:
                 system = name.startswith(("DFH", "SQL")) or name in SYSTEM_COPYBOOKS
                 diag(i, self.lines[i].start, self.lines[i].start + len(self.lines[i].text), 3 if system else 1,
@@ -354,12 +381,17 @@ class Program:
                     (sec_nodes[owner]["children"] if owner else node["children"]).append(p)
             elif dname == "DATA":
                 stack: list[tuple[int, dict]] = []
-                items = sorted(((i, lvl, n) for n, lst in self.data.items() for i, lvl in lst if i < end and i > i - 1),
+                items = sorted(((j, lvl, n) for n, lst in self.data.items() for j, lvl in lst if i <= j < end),
                                key=lambda x: x[0])
-                for i, lvl, n in items:
-                    pic = PIC.search(self.lines[i].text)
+                for j, lvl, n in items:
+                    if lvl == 0:   # an FD or SD: the file itself; its records follow at level 01
+                        node["children"].append({"name": n, "kind": SYMBOL_KIND["data"], "detail": "FD", "range": rng(j),
+                                                 "selectionRange": rng(j), "children": []})
+                        stack.clear()
+                        continue
+                    pic = PIC.search(self.lines[j].text)
                     d = {"name": n, "kind": SYMBOL_KIND["data"], "detail": f"{lvl:02d}" + (f" PIC {pic.group(1)}" if pic else ""),
-                         "range": rng(i), "selectionRange": rng(i), "children": []}
+                         "range": rng(j), "selectionRange": rng(j), "children": []}
                     while stack and stack[-1][0] >= lvl:
                         stack.pop()
                     (stack[-1][1]["children"] if stack else node["children"]).append(d)
@@ -385,6 +417,13 @@ class Program:
                     owner = f" in {sname} SECTION"
             return f"{kind} {name}{owner}\n\n{self.path.name}:{h[0] + 1}"
         return None
+
+
+def _replaced(name: str, pairs: list[tuple[str, str]]) -> str:
+    """``name`` as COPY REPLACING spells it in the program."""
+    for a, b in pairs:
+        name = name.replace(a, b)
+    return name
 
 
 class Index:
@@ -456,22 +495,27 @@ class Index:
         return None
 
     def declared(self, prog: Program, seen: set[Path] | None = None) -> tuple[set[str], bool]:
-        """Every data name a program declares, its copybooks followed; and whether one could not be read."""
+        """Every data name a program declares, its copybooks followed; and whether one could not be read.
+        A book copied twice under two REPLACING prefixes declares both sets; ``seen`` only breaks a cycle."""
         seen = seen if seen is not None else set()
         names = set(prog.data)
         unresolved = False
-        for cname, _ in prog.copies:
+        for cname, _, pairs in prog.copies:
             cp = self.copybook(cname)
-            if cp is None or cp.resolve() in seen:
-                unresolved = unresolved or cp is None
+            if cp is None:
+                unresolved = True
                 continue
-            seen.add(cp.resolve())
+            key = cp.resolve()
+            if key in seen:
+                continue
             sub = self.program(cp)
             if sub is None:
                 unresolved = True
                 continue
+            seen.add(key)
             more, unres = self.declared(sub, seen)
-            names |= more
+            seen.discard(key)
+            names |= {_replaced(n, pairs) for n in more}
             unresolved = unresolved or unres
         return names, unresolved
 
@@ -480,16 +524,20 @@ class Index:
         d = prog.declaration(name)
         if d is not None:
             return prog.path, d[0], d[1]
-        for cname, _ in prog.copies:
+        for cname, _, pairs in prog.copies:
             cp = self.copybook(cname)
             if cp is None or cp.resolve() in seen:
                 continue
-            seen.add(cp.resolve())
             sub = self.program(cp)
-            if sub is not None:
-                got = self.find_declaration(sub, name, seen)
-                if got is not None:
-                    return got
+            if sub is None:
+                continue
+            seen.add(cp.resolve())
+            # the name as the book spells it: a REPLACING pair may have rewritten it
+            wanted = [name] if not pairs else [n for n in self.declared(sub, set(seen))[0] if _replaced(n, pairs) == name]
+            got = next((g for w in wanted for g in [self.find_declaration(sub, w, seen)] if g is not None), None)
+            seen.discard(cp.resolve())
+            if got is not None:
+                return got
         return None
 
 
