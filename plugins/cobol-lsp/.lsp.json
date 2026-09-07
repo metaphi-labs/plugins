@@ -1,0 +1,7 @@
+{
+  "cobol": {
+    "command": "python3",
+    "args": ["${CLAUDE_PLUGIN_ROOT}/server/cobol_ls.py"],
+    "extensionToLanguage": {".cbl": "cobol", ".cob": "cobol", ".cobol": "cobol", ".cpy": "cobol", ".copy": "cobol"}
+  }
+}

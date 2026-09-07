@@ -7,6 +7,13 @@
   },
   "plugins": [
     {
+      "name": "cobol-lsp",
+      "source": "./plugins/cobol-lsp",
+      "version": "1.0.0",
+      "description": "COBOL language server (fixed format, copybooks; python3)",
+      "category": "code-intelligence"
+    },
+    {
       "name": "pyright-lsp",
       "source": "./plugins/pyright-lsp",
       "version": "1.0.0",

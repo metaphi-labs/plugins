@@ -1,0 +1,8 @@
+{
+  "name": "cobol-lsp",
+  "version": "1.0.0",
+  "description": "COBOL language server for Humboldt and Claude Code: fixed-format and copybook aware. Text past column 72, area A misplacements, undeclared names, missing paragraphs and copybooks; definitions, references, hover, symbols. Needs python3 on PATH, nothing else.",
+  "author": {"name": "Metaphi AI"},
+  "license": "MIT",
+  "keywords": ["lsp", "cobol", "mainframe"]
+}
