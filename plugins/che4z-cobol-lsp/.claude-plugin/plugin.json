@@ -1,0 +1,8 @@
+{
+  "name": "che4z-cobol-lsp",
+  "version": "1.0.0",
+  "description": "Broadcom's COBOL Language Support (Che4z) for Humboldt and Claude Code: the full parser, copybooks, CICS and DB2 SQL, IDMS and Datacom dialects. Fetch the engine with che4z-install first.",
+  "author": {"name": "Metaphi AI"},
+  "license": "MIT",
+  "keywords": ["lsp", "cobol", "mainframe", "che4z"]
+}

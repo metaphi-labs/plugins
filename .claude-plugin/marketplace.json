@@ -7,6 +7,13 @@
   },
   "plugins": [
     {
+      "name": "che4z-cobol-lsp",
+      "source": "./plugins/che4z-cobol-lsp",
+      "version": "1.0.0",
+      "description": "COBOL language server: Broadcom's Che4z engine (full parser, copybooks, CICS, DB2)",
+      "category": "code-intelligence"
+    },
+    {
       "name": "cobol-lsp",
       "source": "./plugins/cobol-lsp",
       "version": "1.0.0",
