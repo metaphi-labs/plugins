@@ -1,0 +1,13 @@
+{
+  "name": "csharp-lsp",
+  "version": "1.0.0",
+  "description": "C# language server for Humboldt and Claude Code: definitions, references, hover, symbols, diagnostics after every edit. Install csharp-ls first (dotnet tool install --global csharp-ls).",
+  "author": {
+    "name": "Metaphi AI"
+  },
+  "license": "MIT",
+  "keywords": [
+    "lsp",
+    "c#"
+  ]
+}

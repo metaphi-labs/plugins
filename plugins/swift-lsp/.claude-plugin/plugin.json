@@ -1,0 +1,13 @@
+{
+  "name": "swift-lsp",
+  "version": "1.0.0",
+  "description": "Swift language server for Humboldt and Claude Code: definitions, references, hover, symbols, diagnostics after every edit. Install sourcekit-lsp first (ships with Xcode and the Swift toolchain).",
+  "author": {
+    "name": "Metaphi AI"
+  },
+  "license": "MIT",
+  "keywords": [
+    "lsp",
+    "swift"
+  ]
+}

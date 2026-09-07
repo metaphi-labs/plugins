@@ -1,0 +1,9 @@
+{
+  "jdtls": {
+    "command": "jdtls",
+    "args": [],
+    "extensionToLanguage": {
+      ".java": "java"
+    }
+  }
+}
