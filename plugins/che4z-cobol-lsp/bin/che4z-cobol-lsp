@@ -1,0 +1,14 @@
+#!/bin/sh
+# Start Broadcom's COBOL Language Support engine over stdio, behind the proxy that answers its
+# copybook lookups. CHE4Z_HOME (default ~/.che4z) holds the engine `che4z-install` unpacked: the
+# native binary when the platform has one, server.jar for a Java runtime otherwise.
+home="${CHE4Z_HOME:-$HOME/.che4z}"
+proxy="$(dirname "$0")/../server/proxy.py"
+for engine in "$home/native/server-mac" "$home/native/server-linux" "$home/native/engine.exe"; do
+  if [ -x "$engine" ]; then exec python3 "$proxy" "$engine" pipeEnabled; fi
+done
+if [ -f "$home/jar/server.jar" ]; then
+  exec python3 "$proxy" "${JAVA_HOME:+$JAVA_HOME/bin/}java" -Xmx2G -jar "$home/jar/server.jar" pipeEnabled
+fi
+echo "che4z-cobol-lsp: no engine under $home; run che4z-install" >&2
+exit 127

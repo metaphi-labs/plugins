@@ -1,0 +1,14 @@
+{
+  "che4z-cobol": {
+    "command": "${CLAUDE_PLUGIN_ROOT}/bin/che4z-cobol-lsp",
+    "args": [],
+    "extensionToLanguage": {".cbl": "cobol", ".cob": "cobol", ".cobol": "cobol", ".cpy": "cobol", ".copy": "cobol"},
+    "settings": {
+      "cobol-lsp": {
+        "cpy-manager": {"paths-local": ["Copybooks", "copybooks", "CPY", "cpy", "COPY", "copy", "Copybook",
+                                        "*/Copybooks", "*/copybooks", "*/CPY", "*/cpy", "*/COPY", "*/copy"]},
+        "dialects": []
+      }
+    }
+  }
+}

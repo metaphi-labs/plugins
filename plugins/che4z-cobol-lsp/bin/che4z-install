@@ -1,0 +1,30 @@
+#!/bin/sh
+# Fetch Broadcom's COBOL Language Support engine into CHE4Z_HOME (default ~/.che4z).
+# The engine ships inside the VS Code package on GitHub Releases (EPL-2.0); the package
+# for this platform carries a native binary, the plain one carries server.jar for Java 8+.
+set -e
+version="${CHE4Z_VERSION:-2.5.1}"
+home="${CHE4Z_HOME:-$HOME/.che4z}"
+case "$(uname -s)-$(uname -m)" in
+  Darwin-arm64) pkg="darwin-arm64" ;;
+  Darwin-x86_64) pkg="darwin-x64" ;;
+  Linux-x86_64) pkg="linux-x64" ;;
+  Linux-aarch64) pkg="linux-arm64" ;;
+  *) pkg="" ;;
+esac
+name="cobol-language-support-${pkg:+$pkg-}$version.vsix"
+url="https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol/releases/download/$version/$name"
+tmp="$(mktemp -d)"
+echo "fetching $url"
+curl -fsSL -o "$tmp/pkg.vsix" "$url"
+rm -rf "$home"
+mkdir -p "$home"
+unzip -q "$tmp/pkg.vsix" 'extension/server/*' -d "$tmp"
+mv "$tmp/extension/server"/* "$home"/
+rm -rf "$tmp"
+chmod +x "$home"/native/* 2>/dev/null || true
+echo "$version" > "$home/VERSION"
+for engine in "$home/native/server-mac" "$home/native/server-linux" "$home/native/engine.exe"; do
+  if [ -f "$engine" ]; then echo "installed the native engine in $home"; exit 0; fi
+done
+echo "installed server.jar in $home (needs java 8 or later on PATH)"
