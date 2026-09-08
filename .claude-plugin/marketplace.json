@@ -96,6 +96,13 @@
       "version": "1.0.0",
       "description": "Lua language server (lua-language-server)",
       "category": "code-intelligence"
+    },
+    {
+      "name": "playwright",
+      "source": "./plugins/playwright",
+      "version": "1.0.0",
+      "description": "Browser through Playwright's MCP server: pages, clicks, console, screenshots the model sees",
+      "category": "tools"
     }
   ]
 }
