@@ -106,12 +106,7 @@
     },
     {
       "name": "harwell",
-      "source": {
-        "type": "github",
-        "owner": "metaphi-labs",
-        "repo": "harwell",
-        "path": "plugin"
-      },
+      "source": "./plugins/harwell",
       "version": "0.1.0",
       "description": "The mainframe domain: skills for building on the Harwell emulator (CICS online screens first)",
       "category": "domain"

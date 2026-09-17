@@ -22,3 +22,27 @@ jobs:
           python-version: "3.12"
       - run: pip install pytest
       - run: python -m pytest -q plugins/cobol-lsp/tests
+  install:
+    # A user's machine installs from this repository alone: no GitHub sign-in, no other clone.
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install hum-cli
+      - name: install every plugin the way a session does
+        shell: bash
+        env:
+          HUM_HOME: ${{ runner.temp }}/hum-home
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          set -euo pipefail
+          hum plugin marketplace add "$GITHUB_WORKSPACE"
+          for name in $(python3 -c 'import json; print(" ".join(p["name"] for p in json.load(open(".claude-plugin/marketplace.json"))["plugins"]))'); do
+            hum plugin install "$name@metaphi" -y
+          done
+          hum plugin list

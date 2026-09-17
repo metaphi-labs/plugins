@@ -1,0 +1,36 @@
+EMSCON   DFHMSD TYPE=&SYSPARM,MODE=INOUT,LANG=COBOL,STORAGE=AUTO,      X
+               TIOAPFX=YES,CTRL=(FREEKB,FRSET),EXTATT=YES,             X
+               COLOR=TURQUOISE
+EMSMAP   DFHMDI SIZE=(24,80),LINE=1,COLUMN=1
+         DFHMDF POS=(1,1),LENGTH=79,ATTRB=(ASKIP,NORM),                X
+               INITIAL='-----------------------------------------------X
+               --------------------------------'
+         DFHMDF POS=(2,1),LENGTH=6,ATTRB=(ASKIP,NORM),INITIAL='DATE :'
+SDATE    DFHMDF POS=(2,8),LENGTH=8,ATTRB=(ASKIP,NORM)
+         DFHMDF POS=(2,31),LENGTH=17,ATTRB=(ASKIP,NORM),               X
+               INITIAL='CICS EMS Consumer'
+         DFHMDF POS=(2,65),LENGTH=6,ATTRB=(ASKIP,NORM),INITIAL='TIME :'
+STIME    DFHMDF POS=(2,72),LENGTH=8,ATTRB=(ASKIP,NORM)
+         DFHMDF POS=(3,1),LENGTH=79,ATTRB=(ASKIP,NORM),                X
+               INITIAL='-----------------------------------------------X
+               --------------------------------'
+         DFHMDF POS=(6,1),LENGTH=14,ATTRB=(ASKIP,NORM),                X
+               INITIAL='SERVER       :'
+SERVER   DFHMDF POS=(6,20),LENGTH=32,ATTRB=(UNPROT,NORM,IC)
+         DFHMDF POS=(6,53),LENGTH=1,ATTRB=ASKIP
+         DFHMDF POS=(8,1),LENGTH=14,ATTRB=(ASKIP,NORM),                X
+               INITIAL='Destination  :'
+DEST     DFHMDF POS=(8,20),LENGTH=32,ATTRB=(UNPROT,NORM)
+         DFHMDF POS=(8,53),LENGTH=1,ATTRB=ASKIP
+         DFHMDF POS=(10,1),LENGTH=14,ATTRB=(ASKIP,NORM),               X
+               INITIAL='Message      :'
+MSG      DFHMDF POS=(10,20),LENGTH=58,ATTRB=(UNPROT,NORM)
+         DFHMDF POS=(10,79),LENGTH=1,ATTRB=ASKIP
+         DFHMDF POS=(21,20),LENGTH=21,ATTRB=(ASKIP,NORM),              X
+               INITIAL='PF3=Exit, PF5=Refresh'
+         DFHMDF POS=(22,1),LENGTH=79,ATTRB=(ASKIP,NORM),               X
+               INITIAL='-----------------------------------------------X
+               --------------------------------'
+MSGLN    DFHMDF POS=(24,1),LENGTH=78,ATTRB=(ASKIP,BRT)
+         DFHMSD TYPE=FINAL
+         END
