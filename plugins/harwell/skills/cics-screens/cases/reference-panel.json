@@ -1,0 +1,6 @@
+{
+  "task": "Build the CICS online screen an expert asked for, in this unit. Transaction EMSC, mapset EMSCON, map EMSMAP, program EMSCON1. The panel is the shop's standard frame: a dashed rule on rows 1, 3 and 22; on row 2 'DATE : mm/dd/yy' at the left, the title 'CICS EMS Consumer' centred, 'TIME : hh:mm:ss' at the right; three input fields with labels 'SERVER', 'Destination' and 'Message' on rows 6, 8 and 10, colons aligned, input starting at column 21; the legend 'PF3=Exit, PF5=Refresh' on row 21; a message line on row 24. The program is pseudo-conversational: Enter validates that SERVER and Destination are filled and confirms 'MESSAGE SENT TO <destination>' on the message line, PF5 refreshes the date and time, PF3 ends the session. Write the mapset as BMS macro source, the program, run.json with the conversation (first entry, a valid send, a rejection with SERVER blank, PF3) and ORACLE/screens.json; run it on the emulator with run_unit and fix what the assembler or the oracle refuses. Report with the rendered screens.",
+  "gate": "python3 gate.py",
+  "fixtures": "fixtures/reference-panel",
+  "max_turns": 60
+}

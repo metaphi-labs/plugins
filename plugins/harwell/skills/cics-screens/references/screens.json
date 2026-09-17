@@ -1,0 +1,6 @@
+{"screens": [
+  {"map": "EMSMAP", "fields": {"SDATE": "11/10/06", "STIME": "10:16:40", "MSGLN": ""}},
+  {"map": "EMSMAP", "fields": {"SERVER": "TIBEMS01", "DEST": "queue.sample", "MSG": "hello from CICS",
+                               "MSGLN": "MESSAGE SENT TO queue.sample"}},
+  {"map": "EMSMAP", "fields": {"MSGLN": "SERVER IS REQUIRED"}}
+ ], "exact": true}

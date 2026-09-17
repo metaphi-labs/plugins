@@ -1,0 +1,14 @@
+{
+ "clock": "20061110101640",
+ "cics": {
+  "transactions": {"EMSC": "EMSCON1"},
+  "screens": [
+   {"transid": "EMSC", "aid": "DFHENTER"},
+   {"transid": "EMSC", "aid": "DFHENTER", "map": "EMSMAP", "mapset": "EMSCON",
+    "fields": {"SERVER": "TIBEMS01", "DEST": "queue.sample", "MSG": "hello from CICS"}},
+   {"transid": "EMSC", "aid": "DFHENTER", "map": "EMSMAP", "mapset": "EMSCON",
+    "fields": {"SERVER": "", "DEST": "queue.sample"}},
+   {"transid": "EMSC", "aid": "DFHPF3", "map": "EMSMAP", "mapset": "EMSCON"}
+  ]
+ }
+}
