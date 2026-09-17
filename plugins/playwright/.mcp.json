@@ -10,7 +10,7 @@
         "--viewport-size",
         "1280x800",
         "--output-dir",
-        "${CLAUDE_PLUGIN_ROOT}/output"
+        "${HUM_PLUGIN_ROOT}/output"
       ]
     }
   }

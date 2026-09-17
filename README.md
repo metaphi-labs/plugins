@@ -1,6 +1,6 @@
 # Plugins
 
-Plugins for Humboldt, in the layout Claude Code reads too.
+Plugins for Hum, in Hum's own layout.
 
 ```
 hum plugin marketplace add metaphi-labs/plugins
@@ -10,9 +10,16 @@ hum plugin install pyright-lsp@metaphi
 ## Layout
 
 ```
-.claude-plugin/marketplace.json   the catalog
-plugins/<name>/                   one plugin per directory
+.hum-plugin/marketplace.json            the catalog
+plugins/<name>/                         one plugin per directory
+plugins/<name>/.hum-plugin/plugin.json  its manifest
 ```
+
+`${HUM_PLUGIN_ROOT}` in a plugin's files names the plugin's own directory.
+
+The `.claude-plugin` folders are copies of the `.hum-plugin` ones, kept for Hum 0.2.22 and earlier, which read
+that name. They go when the release that reads `.hum-plugin` is out; `scripts/check_catalog.py` holds the two
+identical until then.
 
 ## Contribute
 

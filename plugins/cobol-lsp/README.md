@@ -2,7 +2,7 @@
 
 COBOL code intelligence for estate code: fixed format, copybooks, JCL beside it. A single Python file, no dependencies.
 
-Install: `hum plugin install cobol-lsp@metaphi` (Humboldt) or `/plugin install cobol-lsp@metaphi` (Claude Code). Needs `python3` on PATH.
+Install: `hum plugin install cobol-lsp@metaphi`. Needs `python3` on PATH.
 
 ## Diagnostics
 
