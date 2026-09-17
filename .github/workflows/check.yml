@@ -42,7 +42,7 @@ jobs:
         run: |
           set -euo pipefail
           hum plugin marketplace add "$GITHUB_WORKSPACE"
-          for name in $(python3 -c 'import json; print(" ".join(p["name"] for p in json.load(open(".claude-plugin/marketplace.json"))["plugins"]))'); do
+          for name in $(python3 -c 'import json; print(" ".join(p["name"] for p in json.load(open(".hum-plugin/marketplace.json"))["plugins"]))'); do
             hum plugin install "$name@metaphi" -y
           done
           hum plugin list
