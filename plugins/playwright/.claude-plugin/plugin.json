@@ -1,8 +1,0 @@
-{
-  "name": "playwright",
-  "version": "1.0.0",
-  "description": "A browser for Hum through Playwright's MCP server: open pages, click, type, read the console and take screenshots the model sees. Needs Node 18 or newer.",
-  "author": {"name": "Metaphi AI"},
-  "license": "MIT",
-  "keywords": ["mcp", "browser", "playwright", "screenshot"]
-}

@@ -1,8 +1,0 @@
-{
-  "name": "harwell",
-  "version": "0.1.0",
-  "description": "The mainframe domain for Hum: skills for the estate an engineer builds on the Harwell emulator. CICS online screens first; batch to follow.",
-  "author": {"name": "Metaphi AI"},
-  "license": "Apache-2.0",
-  "keywords": ["mainframe", "cics", "bms", "cobol", "skills"]
-}
