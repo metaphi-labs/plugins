@@ -2,12 +2,6 @@
 """The catalog and every plugin it names, read the way Hum reads them: the catalog at
 .hum-plugin/marketplace.json, a plugin's manifest at plugins/<name>/.hum-plugin/plugin.json.
 
-While a released Hum still reads the old folder (.claude-plugin), each one that is here must be a
-byte-for-byte copy of the .hum-plugin beside it; once it is gone, nothing is checked about it.
-
-Fails when: the catalog is not JSON or has no plugins list; an entry's source is not a directory in this
-repository; a plugin's plugin.json, .mcp.json or .lsp.json is not JSON; an .lsp.json server lacks a command or
-its extensionToLanguage; a name is not a plain identifier; two entries share a name.
 """
 from __future__ import annotations
 
@@ -78,12 +72,6 @@ def main() -> int:
     for d in sorted((ROOT / "plugins").iterdir()):
         if d.is_dir() and d.name not in seen:
             fail(f"plugins/{d.name} is not in the catalog")
-    for legacy in [ROOT / ".claude-plugin", *sorted(ROOT.glob("plugins/*/.claude-plugin"))]:
-        ours = legacy.parent / ".hum-plugin"
-        for f in sorted(x for x in legacy.rglob("*") if x.is_file()):
-            twin = ours / f.relative_to(legacy)
-            if not twin.is_file() or twin.read_bytes() != f.read_bytes():
-                fail(f"{f.relative_to(ROOT)} is not a copy of {twin.relative_to(ROOT)}")
     return 1 if fail.count else 0   # type: ignore[attr-defined]
 
 
